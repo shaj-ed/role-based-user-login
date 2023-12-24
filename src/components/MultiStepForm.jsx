@@ -5,10 +5,10 @@ import TimestampInput from "./TimestampInput";
 import FileInput from "./FileInput";
 import SentTo from "./SentTo";
 import { useMultistepForm } from "../hooks/useMultistepForm";
-import { UserContext } from "../context/userContext";
+import { UserContext } from "../context/UserContext";
 
 const MultiStepForm = () => {
-  const { newUser } = useContext(UserContext);
+  const { newUser, addContactList } = useContext(UserContext);
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
   const [timestamp, setTimestamp] = useState("");
@@ -37,26 +37,27 @@ const MultiStepForm = () => {
     }
   };
 
-  const { stepIndex, step, lastStep, prevStep, nextStep } = useMultistepForm([
-    <NameInput name={name} setName={setName} key={Math.random()} />,
-    <PhoneInput number={number} setNumber={setNumber} key={Math.random()} />,
-    <TimestampInput
-      timestamp={timestamp}
-      setTimestamp={setTimestamp}
-      key={Math.random()}
-    />,
-    <FileInput
-      file={file}
-      handleFileChange={handleFileChange}
-      key={Math.random()}
-    />,
-    <SentTo
-      setSelectUserDetail={setSelectUserDetail}
-      selectUser={selectUser}
-      setSelectUser={setSelectUser}
-      key={Math.random()}
-    />,
-  ]);
+  const { stepIndex, step, lastStep, setStepIndex, prevStep, nextStep } =
+    useMultistepForm([
+      <NameInput name={name} setName={setName} key={Math.random()} />,
+      <PhoneInput number={number} setNumber={setNumber} key={Math.random()} />,
+      <TimestampInput
+        timestamp={timestamp}
+        setTimestamp={setTimestamp}
+        key={Math.random()}
+      />,
+      <FileInput
+        file={file}
+        handleFileChange={handleFileChange}
+        key={Math.random()}
+      />,
+      <SentTo
+        setSelectUserDetail={setSelectUserDetail}
+        selectUser={selectUser}
+        setSelectUser={setSelectUser}
+        key={Math.random()}
+      />,
+    ]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -70,17 +71,29 @@ const MultiStepForm = () => {
         name,
         number,
         timestamp,
-        file,
+        sendFile: file.name,
         sentUser: selectUserDetail,
         createdBy: newUser.name,
       };
+
+      console.log(file);
 
       setError({
         isError: false,
         message: "",
       });
 
-      console.log(meetingDetails);
+      // addFile(file, selectUserDetail);
+      addContactList(meetingDetails, file);
+
+      // Back to the default
+      setName("");
+      setNumber("");
+      setTimestamp("");
+      setFile("");
+      setSelectUser("");
+      setSelectUserDetail("");
+      setStepIndex(0);
     }
   };
 

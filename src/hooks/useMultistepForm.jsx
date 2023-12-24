@@ -19,5 +19,6 @@ export const useMultistepForm = (steps) => {
     lastStep: steps.length - 1,
     nextStep,
     prevStep,
+    setStepIndex,
   };
 };

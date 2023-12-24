@@ -1,9 +1,9 @@
 import { useContext } from "react";
-import { UserContext } from "../context/userContext";
 import Loading from "../components/Loading";
 import Error from "./Error";
 import { Link } from "react-router-dom";
 import MultiStepForm from "../components/MultiStepForm";
+import { UserContext } from "../context/UserContext";
 
 const AdminDashboard = () => {
   const { newUser, errorMessage, loading } = useContext(UserContext);

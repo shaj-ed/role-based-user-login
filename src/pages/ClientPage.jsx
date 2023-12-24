@@ -1,8 +1,9 @@
 import { useContext } from "react";
-import { UserContext } from "../context/userContext";
 import Loading from "../components/Loading";
 import Error from "./Error";
 import { Link } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
+import ContactList from "../components/ContactList";
 
 const ClientPage = () => {
   const { newUser, errorMessage, loading } = useContext(UserContext);
@@ -17,14 +18,17 @@ const ClientPage = () => {
 
   return (
     <main className="w-full">
-      <header className="p-5 bg-slate-500 text-cyan-200 flex justify-around">
+      <header className="p-5 bg-slate-500 text-cyan-200 flex justify-around items-center">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <h2 className="text-2xl font-semibold">Client</h2>
+        <div className="">
+          <code className="text-xl block capitalize">{newUser.name}</code>
+          <code className="text-md">{newUser.email}</code>
+        </div>
       </header>
 
-      <section className="text-center mt-10">
-        <code className="text-xl block capitalize">{newUser.name}</code>
-        <code className="text-xl">{newUser.email}</code>
+      <section className="max-w-md mx-auto my-10">
+        <h2 className="text-2xl font-semibold">Contact List</h2>
+        {<ContactList />}
       </section>
 
       <section className="text-center">
