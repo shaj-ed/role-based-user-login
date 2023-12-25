@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { createContext, useState } from "react";
 import { auth, db, storage } from "../firebase";
 import { addDoc, collection, getDocs } from "firebase/firestore";
-import { getMetadata, listAll, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export const UserContext = createContext("");
 
@@ -15,6 +15,7 @@ export const UserContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState([]);
+  const [fileUrl, setFileUrl] = useState("");
 
   const login = async (userRole, email, password) => {
     try {
@@ -31,9 +32,7 @@ export const UserContextProvider = ({ children }) => {
         const newUserData = querySnapshot.docs.filter(
           (doc) => doc.id === curUser.uid
         )[0];
-        // const newUserData = users.filter((doc) => doc.id === curUser.uid)[0];
         tempArray.push({ ...newUserData.data(), id: curUser.uid });
-        console.log(tempArray);
         setNewUser(tempArray);
         loadUser(userRole, { ...newUserData.data(), id: curUser.uid });
       });
@@ -71,60 +70,30 @@ export const UserContextProvider = ({ children }) => {
     }
   };
 
-  const addFile = (file, docId) => {
-    console.log(file);
-    const metaData = {
-      contentType: file.type,
-      name: file.name,
-      customMetadata: {
-        docId,
-      },
-    };
-    const fileRef = ref(storage, `audio/${docId}${file.name}`);
-    uploadBytes(fileRef, file, metaData).then((snapshot) => {
-      console.log("Uploaded a blob or file!", snapshot);
+  const addContactList = async (contact, file, id) => {
+    setLoading(true);
+    const fileRef = ref(storage, `audio/${id}${file.name}`);
+    uploadBytes(fileRef, file).then((snapshot) => {
+      getDownloadURL(ref(storage, `audio/${snapshot.metadata.name}`))
+        .then((url) => {
+          setFileUrl(url);
+          addListWithUrl(contact, url);
+        })
+        .catch((error) => {
+          return error;
+        });
     });
   };
 
-  const getFileUrl = (contact) => {
-    let audioLink = "";
-    const listRef = ref(storage, "audio");
-    listAll(listRef)
-      .then((res) => {
-        res.items.map((itemRef) => {
-          getMetadata(ref(storage, `audio/${itemRef.name}`))
-            .then((metadata) => {
-              if (metadata.customMetadata.docId === contact.id) {
-                console.log(metadata);
-              }
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    console.log();
-    // getDownloadURL(ref(storage, file))
-    //   .then((url) => {
-    //     console.log(url);
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
-    return audioLink;
-  };
-
-  const addContactList = async (contact, file) => {
+  const addListWithUrl = async (contact, url) => {
+    const newContact = { ...contact, url };
     try {
-      const docRef = await addDoc(collection(db, "contactList"), {
-        ...contact,
+      await addDoc(collection(db, "contactList"), {
+        ...newContact,
       });
-      addFile(file, docRef.id);
-      console.log(docRef.id);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
@@ -136,12 +105,12 @@ export const UserContextProvider = ({ children }) => {
         errorMessage,
         loading,
         users,
+        fileUrl,
         login,
+        setLoading,
         setNewUser,
         setErrorMessage,
-        addFile,
         addContactList,
-        getFileUrl,
       }}
     >
       {children}

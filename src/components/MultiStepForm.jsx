@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import NameInput from "./NameInput";
 import PhoneInput from "./PhoneInput";
 import TimestampInput from "./TimestampInput";
@@ -8,17 +8,35 @@ import { useMultistepForm } from "../hooks/useMultistepForm";
 import { UserContext } from "../context/UserContext";
 
 const MultiStepForm = () => {
-  const { newUser, addContactList } = useContext(UserContext);
+  const { newUser, loading, addContactList } = useContext(UserContext);
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
   const [timestamp, setTimestamp] = useState("");
   const [file, setFile] = useState("");
   const [selectUser, setSelectUser] = useState("");
   const [selectUserDetail, setSelectUserDetail] = useState("");
+  // const [loading, setLoading] = useState(true);
   const [error, setError] = useState({
     isError: false,
     message: "",
   });
+
+  useEffect(() => {
+    if (!loading) {
+      setName("");
+      setNumber("");
+      setTimestamp("");
+      setFile("");
+      setSelectUser("");
+      setSelectUserDetail("");
+      setStepIndex(0);
+      setError({
+        isError: false,
+        message: "",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -71,29 +89,11 @@ const MultiStepForm = () => {
         name,
         number,
         timestamp,
-        sendFile: file.name,
         sentUser: selectUserDetail,
         createdBy: newUser.name,
       };
 
-      console.log(file);
-
-      setError({
-        isError: false,
-        message: "",
-      });
-
-      // addFile(file, selectUserDetail);
-      addContactList(meetingDetails, file);
-
-      // Back to the default
-      setName("");
-      setNumber("");
-      setTimestamp("");
-      setFile("");
-      setSelectUser("");
-      setSelectUserDetail("");
-      setStepIndex(0);
+      addContactList(meetingDetails, file, selectUserDetail.id);
     }
   };
 
@@ -110,7 +110,7 @@ const MultiStepForm = () => {
           type="button"
           className="text-md font-semibold px-7 py-2 mr-2 bg-slate-700 text-slate-50 cursor-pointer hover:opacity-90"
           onClick={prevStep}
-          disabled={stepIndex === 0 ? true : false}
+          disabled={stepIndex === 0 ? true : false || loading}
         >
           Prev
         </button>
@@ -129,8 +129,9 @@ const MultiStepForm = () => {
           <button
             type="submit"
             className="text-md font-semibold px-7 py-2 bg-slate-700 text-slate-50 cursor-pointer hover:opacity-90"
+            disabled={loading}
           >
-            Submit
+            {loading ? "Loading.." : "Submit"}
           </button>
         )}
       </div>

@@ -5,7 +5,7 @@ import { db } from "../firebase";
 import Loading from "./Loading";
 
 const ContactList = () => {
-  const { newUser, getFileUrl } = useContext(UserContext);
+  const { newUser } = useContext(UserContext);
   const [loading, setLoading] = useState(true);
   const [contacts, setContacts] = useState([]);
   const [error, setError] = useState({
@@ -26,9 +26,6 @@ const ContactList = () => {
           );
           if (filterContacts.length > 0) {
             setContacts(filterContacts);
-            filterContacts.forEach(() => {
-              // getFileUrl(newUser.id)
-            });
             setLoading(false);
             setError({
               isError: false,
@@ -74,13 +71,15 @@ const ContactList = () => {
                 <h3>Phone: {contact.number}</h3>
                 <h3>Timestamp: {formatTime(contact.timestamp)}</h3>
                 <h3>
-                  Sent By:{" "}
+                  Sent By:
                   <span className="capitalize text-lg">
                     {contact.createdBy}
                   </span>
                 </h3>
-                <h3>{contact.sendFile}</h3>
-                <h3>File: {getFileUrl(contact)}</h3>
+                <h3 className="mb-3">Audio:</h3>
+                <audio controls>
+                  <source src={contact.url} type="audio/ogg" />
+                </audio>
               </li>
             );
           })}

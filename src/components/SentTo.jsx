@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useContext } from "react";
-import { UserContext } from "../context/userContext";
+import { UserContext } from "../context/UserContext";
 
 // eslint-disable-next-line react/prop-types
 const SentTo = ({ selectUser, setSelectUser, setSelectUserDetail }) => {
@@ -18,7 +18,6 @@ const SentTo = ({ selectUser, setSelectUser, setSelectUserDetail }) => {
     setSelectUser(e.target.value);
 
     setSelectUserDetail(selectedUser);
-    console.log(selectedUser);
   };
 
   return (
